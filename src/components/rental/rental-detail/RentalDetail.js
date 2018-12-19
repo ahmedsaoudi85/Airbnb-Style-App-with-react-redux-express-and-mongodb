@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { RentalDetailInfo } from './RentalDetailInfo';
-import { RentalMap } from './RentalMap';
+import RentalMap from './RentalMap';
 import Booking from 'components/booking/Booking';
 
 import * as actions from 'actions';
@@ -14,9 +14,8 @@ class RentalDetail extends React.Component {
 
     this.props.dispatch(actions.fetchRentalById(rentalId));
   }
-
   render() {
-    const rental = this.props.rental;
+    const { rental } = this.props;
 
     if (rental._id) {
       return (
@@ -54,7 +53,8 @@ class RentalDetail extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    rental: state.rental.data
+    rental: state.rental.data,
+    errors: state.rental.errors
   }
 }
 

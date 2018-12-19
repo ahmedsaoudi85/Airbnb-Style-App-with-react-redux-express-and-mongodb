@@ -26,6 +26,26 @@ router.get('/manage',  UserCtrl.authMiddleware, function(req, res) {
   });
 });
 
+router.get('/:id/verify-user', UserCtrl.authMiddleware, function(req, res) {
+  const user = res.locals.user;
+
+  Rental
+    .findById(req.params.id)
+    .populate('user')
+    .exec(function(err, foundRental) {
+      if (err) {
+        return res.status(422).send({errors: normalizeErrors(err.errors)});
+      }
+
+      if (foundRental.user.id !== user.id) {
+        return res.status(422).send({errors: [{title: 'Invalid User!', detail: 'You are not rental owner!'}]});
+      }
+
+
+      return res.json({status: 'verified'});
+    });
+});
+
 router.get('/:id', function(req, res) {
   const rentalId = req.params.id;
 
@@ -34,12 +54,41 @@ router.get('/:id', function(req, res) {
         .populate('bookings', 'startAt endAt -_id')
         .exec(function(err, foundRental) {
 
-    if (err) {
+    if (err || !foundRental) {
       return res.status(422).send({errors: [{title: 'Rental Error!', detail: 'Could not find Rental!'}]});
     }
 
     return res.json(foundRental);
   });
+});
+
+router.patch('/:id', UserCtrl.authMiddleware, function(req, res) {
+
+  const rentalData = req.body;
+  const user = res.locals.user;
+
+  Rental
+    .findById(req.params.id)
+    .populate('user')
+    .exec(function(err, foundRental) {
+
+      if (err) {
+        return res.status(422).send({errors: normalizeErrors(err.errors)});
+      }
+
+      if (foundRental.user.id !== user.id) {
+        return res.status(422).send({errors: [{title: 'Invalid User!', detail: 'You are not rental owner!'}]});
+      }
+
+      foundRental.set(rentalData);
+      foundRental.save(function(err) {
+        if (err) {
+          return res.status(422).send({errors: normalizeErrors(err.errors)});
+        }
+
+        return res.status(200).send(foundRental);
+      });
+    });
 });
 
 router.delete('/:id', UserCtrl.authMiddleware, function(req, res) {
@@ -116,4 +165,5 @@ router.get('', function(req, res) {
 });
 
 module.exports = router;
+
 
