@@ -10,4 +10,3 @@ router.get('/manage', UserCtrl.authMiddleware, BookingCtrl.getUserBookings);
 
 module.exports = router;
 
-

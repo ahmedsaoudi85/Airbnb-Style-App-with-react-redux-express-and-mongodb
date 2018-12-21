@@ -12,32 +12,11 @@ import { FETCH_RENTAL_BY_ID_SUCCESS,
          LOGOUT,
          FETCH_USER_BOOKINGS_SUCCESS,
          FETCH_USER_BOOKINGS_FAIL,
-         FETCH_USER_BOOKINGS_INIT,
-         UPDATE_RENTAL_SUCCESS,
-         UPDATE_RENTAL_FAIL,
-         RESET_RENTAL_ERRORS,
-         RELOAD_MAP,
-         RELOAD_MAP_FINISH } from './types';
-
-const axiosInstance = axiosService.getInstance();
-
-export const verifyRentalOwner = (rentalId) => {
-  return axiosInstance.get(`/rentals/${rentalId}/verify-user`);
-}
-
-export const reloadMap = () => {
-  return {
-    type: RELOAD_MAP
-  }
-}
-
-export const reloadMapFinish = () => {
-  return {
-    type: RELOAD_MAP_FINISH
-  }
-}
+         FETCH_USER_BOOKINGS_INIT } from './types';
 
 // RENTALS ATIONS ---------------------------
+
+const axiosInstance = axiosService.getInstance();
 
 const fetchRentalByIdInit = () => {
   return {
@@ -101,39 +80,6 @@ export const createRental = (rentalData) => {
     res => res.data,
     err => Promise.reject(err.response.data.errors)
   )
-}
-
-export const resetRentalErrors = () => {
-  return {
-    type: RESET_RENTAL_ERRORS
-  }
-}
-
-const updateRentalSuccess = (updatedRental) => {
-  return {
-    type: UPDATE_RENTAL_SUCCESS,
-    rental: updatedRental
-  }
-}
-
-const updateRentalFail = (errors) => {
-  return {
-    type: UPDATE_RENTAL_FAIL,
-    errors
-  }
-}
-
-export const updateRental = (id, rentalData) => dispatch => {
-  return axiosInstance.patch(`/rentals/${id}`, rentalData)
-    .then(res => res.data)
-    .then(updatedRental => {
-      dispatch(updateRentalSuccess(updatedRental));
-
-      if (rentalData.city || rentalData.street) {
-        dispatch(reloadMap());
-      }
-    })
-    .catch(({response}) => dispatch(updateRentalFail(response.data.errors)))
 }
 
 // USER BOOKINGS ACTIONS ---------------------------
@@ -244,64 +190,6 @@ export const createBooking = (booking) => {
       .then(res => res.data)
       .catch(({response}) => Promise.reject(response.data.errors))
 }
-
-
-
-export const uploadImage = image => {
-  const formData = new FormData();
-  formData.append('image', image);
-
-  return axiosInstance.post('/image-upload', formData)
-    .then(json => {
-      return json.data.imageUrl;
-    })
-    .catch(({response}) => Promise.reject(response.data.errors[0]))
-}
-
-
-export const getPendingPayments = () => {
-  return axiosInstance.get('/payments')
-    .then(res => res.data)
-    .catch(({response}) => Promise.reject(response.data.errors))
-}
-
-export const acceptPayment = (payment) => {
-  return axiosInstance.post('/payments/accept', payment)
-    .then(res => res.data)
-    .catch(({response}) => Promise.reject(response.data.errors))
-}
-
-export const declinePayment = (payment) => {
-  return axiosInstance.post('/payments/decline', payment)
-    .then(res => res.data)
-    .catch(({response}) => Promise.reject(response.data.errors))
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
